@@ -93,11 +93,11 @@ func (vs *VSphere) Cleanup() {
 
 func (vs VSphere) createClient() (*client.Client, error) {
 	config := client.Config{
-		URL:             vs.UserURL,
-		User:            vs.Username,
-		Password:        vs.Password,
-		Timeout:         vs.Timeout.Duration,
-		ClientTLSConfig: vs.ClientTLSConfig,
+		URL:       vs.URL,
+		User:      vs.Username,
+		Password:  vs.Password,
+		Timeout:   vs.Timeout.Duration,
+		TLSConfig: vs.Client.TLSConfig,
 	}
 	return client.New(config)
 }
@@ -136,7 +136,7 @@ const (
 )
 
 func (vs VSphere) validateConfig() error {
-	if vs.UserURL == "" {
+	if vs.URL == "" {
 		return errors.New("URL is not set")
 	}
 	if vs.Username == "" || vs.Password == "" {

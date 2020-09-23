@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/netdata/go.d.plugin/pkg/tlscfg"
 	"github.com/netdata/go.d.plugin/pkg/web"
 
 	"github.com/netdata/go-orchestrator/module"
@@ -44,13 +45,13 @@ func TestDockerEngine_Init(t *testing.T) {
 			config: New().Config,
 		},
 		"empty URL": {
-			config:   Config{HTTP: web.HTTP{Request: web.Request{UserURL: ""}}},
+			config:   Config{HTTP: web.HTTP{Request: web.Request{URL: ""}}},
 			wantFail: true,
 		},
 		"nonexistent TLS CA": {
 			config: Config{HTTP: web.HTTP{
-				Request: web.Request{UserURL: "http://127.0.0.1:9323/metrics"},
-				Client:  web.Client{ClientTLSConfig: web.ClientTLSConfig{TLSCA: "testdata/tls"}}}},
+				Request: web.Request{URL: "http://127.0.0.1:9323/metrics"},
+				Client:  web.Client{TLSConfig: tlscfg.TLSConfig{TLSCA: "testdata/tls"}}}},
 			wantFail: true,
 		},
 	}
@@ -272,7 +273,7 @@ func prepareClientServerV17050CE(t *testing.T) (*DockerEngine, *httptest.Server)
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -286,7 +287,7 @@ func prepareClientServerV18093CE(t *testing.T) (*DockerEngine, *httptest.Server)
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -300,7 +301,7 @@ func prepareClientServerV18093CESwarm(t *testing.T) (*DockerEngine, *httptest.Se
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -314,7 +315,7 @@ func prepareClientServerNonDockerEngine(t *testing.T) (*DockerEngine, *httptest.
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -328,7 +329,7 @@ func prepareClientServerInvalidData(t *testing.T) (*DockerEngine, *httptest.Serv
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -342,7 +343,7 @@ func prepareClientServer404(t *testing.T) (*DockerEngine, *httptest.Server) {
 		}))
 
 	dockerEngine := New()
-	dockerEngine.UserURL = srv.URL
+	dockerEngine.URL = srv.URL
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv
@@ -353,7 +354,7 @@ func prepareClientServerConnectionRefused(t *testing.T) (*DockerEngine, *httptes
 	srv := httptest.NewServer(nil)
 
 	dockerEngine := New()
-	dockerEngine.UserURL = "http://127.0.0.1:38001/metrics"
+	dockerEngine.URL = "http://127.0.0.1:38001/metrics"
 	require.True(t, dockerEngine.Init())
 
 	return dockerEngine, srv

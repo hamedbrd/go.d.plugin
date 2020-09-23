@@ -10,7 +10,7 @@ import (
 
 func testNewVCSA() *VCSA {
 	vc := New()
-	vc.UserURL = "https://127.0.0.1:38001"
+	vc.URL = "https://127.0.0.1:38001"
 	vc.Username = "user"
 	vc.Password = "pass"
 	return vc
@@ -37,7 +37,7 @@ func TestVCenter_InitErrorOnValidatingInitParameters(t *testing.T) {
 
 func TestVCenter_InitErrorOnCreatingClient(t *testing.T) {
 	job := testNewVCSA()
-	job.ClientTLSConfig.TLSCA = "testdata/tls"
+	job.Client.TLSConfig.TLSCA = "testdata/tls"
 
 	assert.False(t, job.Init())
 }

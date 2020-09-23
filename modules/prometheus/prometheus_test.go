@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/netdata/go.d.plugin/pkg/prometheus/selector"
+	"github.com/netdata/go.d.plugin/pkg/tlscfg"
 	"github.com/netdata/go.d.plugin/pkg/web"
 
 	"github.com/netdata/go-orchestrator/module"
@@ -25,18 +26,18 @@ func TestPrometheus_Init(t *testing.T) {
 		wantFail bool
 	}{
 		"non empty URL": {
-			config: Config{HTTP: web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"}}},
+			config: Config{HTTP: web.HTTP{Request: web.Request{URL: "http://127.0.0.1:9090/metric"}}},
 		},
 		"invalid selector syntax": {
 			config: Config{
-				HTTP:     web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"}},
+				HTTP:     web.HTTP{Request: web.Request{URL: "http://127.0.0.1:9090/metric"}},
 				Selector: selector.Expr{Allow: []string{`name{label=#"value"}`}},
 			},
 			wantFail: true,
 		},
 		"invalid group selector syntax": {
 			config: Config{
-				HTTP: web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"}},
+				HTTP: web.HTTP{Request: web.Request{URL: "http://127.0.0.1:9090/metric"}},
 				Grouping: []GroupOption{
 					{Selector: `name{label=#"value"}`, ByLabel: "label"},
 				},
@@ -45,7 +46,7 @@ func TestPrometheus_Init(t *testing.T) {
 		},
 		"empty group selector": {
 			config: Config{
-				HTTP: web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"}},
+				HTTP: web.HTTP{Request: web.Request{URL: "http://127.0.0.1:9090/metric"}},
 				Grouping: []GroupOption{
 					{Selector: "", ByLabel: "label"},
 				},
@@ -54,7 +55,7 @@ func TestPrometheus_Init(t *testing.T) {
 		},
 		"empty group 'by_label'": {
 			config: Config{
-				HTTP: web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"}},
+				HTTP: web.HTTP{Request: web.Request{URL: "http://127.0.0.1:9090/metric"}},
 				Grouping: []GroupOption{
 					{Selector: "name", ByLabel: ""},
 				},
@@ -67,8 +68,8 @@ func TestPrometheus_Init(t *testing.T) {
 		},
 		"nonexistent TLS CA": {
 			config: Config{HTTP: web.HTTP{
-				Request: web.Request{UserURL: "http://127.0.0.1:9090/metric"},
-				Client:  web.Client{ClientTLSConfig: web.ClientTLSConfig{TLSCA: "testdata/tls"}}}},
+				Request: web.Request{URL: "http://127.0.0.1:9090/metric"},
+				Client:  web.Client{TLSConfig: tlscfg.TLSConfig{TLSCA: "testdata/tls"}}}},
 			wantFail: true,
 		},
 	}
@@ -1007,7 +1008,7 @@ func preparePrometheus(t *testing.T, metrics [][]string) (*Prometheus, func()) {
 
 	srv := preparePrometheusEndpoint(metrics)
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	require.True(t, prom.Init())
 
 	return prom, srv.Close
@@ -1019,7 +1020,7 @@ func preparePrometheusWithSelector(t *testing.T, metrics [][]string, sr selector
 	srv := preparePrometheusEndpoint(metrics)
 
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	prom.Selector = sr
 	require.True(t, prom.Init())
 
@@ -1032,7 +1033,7 @@ func preparePrometheusWithGrouping(t *testing.T, metrics [][]string, grp []Group
 	srv := preparePrometheusEndpoint(metrics)
 
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	prom.Grouping = grp
 	require.True(t, prom.Init())
 
@@ -1047,7 +1048,7 @@ func preparePrometheusValidData(t *testing.T) (*Prometheus, func()) {
 		}))
 
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	require.True(t, prom.Init())
 
 	return prom, srv.Close
@@ -1061,7 +1062,7 @@ func preparePrometheusInvalidData(t *testing.T) (*Prometheus, func()) {
 		}))
 
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	require.True(t, prom.Init())
 
 	return prom, srv.Close
@@ -1074,7 +1075,7 @@ func preparePrometheus404(t *testing.T) (*Prometheus, func()) {
 			w.WriteHeader(http.StatusNotFound)
 		}))
 	prom := New()
-	prom.UserURL = srv.URL
+	prom.URL = srv.URL
 	require.True(t, prom.Init())
 
 	return prom, srv.Close
@@ -1083,7 +1084,7 @@ func preparePrometheus404(t *testing.T) (*Prometheus, func()) {
 func preparePrometheusConnectionRefused(t *testing.T) (*Prometheus, func()) {
 	t.Helper()
 	prom := New()
-	prom.UserURL = "http://127.0.0.1:38001/metrics"
+	prom.URL = "http://127.0.0.1:38001/metrics"
 	require.True(t, prom.Init())
 
 	return prom, func() {}

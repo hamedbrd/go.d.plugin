@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/netdata/go.d.plugin/pkg/matcher"
+	"github.com/netdata/go.d.plugin/pkg/tlscfg"
 	"github.com/netdata/go.d.plugin/pkg/web"
 
 	"github.com/netdata/go-orchestrator/module"
@@ -42,22 +43,22 @@ func TestPulsar_Init(t *testing.T) {
 			config: New().Config,
 		},
 		"empty topic filter": {
-			config: Config{HTTP: web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:8080/metric"}}},
+			config: Config{HTTP: web.HTTP{Request: web.Request{URL: "http://127.0.0.1:8080/metric"}}},
 		},
 		"bad syntax topic filer": {
 			config: Config{
-				HTTP:       web.HTTP{Request: web.Request{UserURL: "http://127.0.0.1:8080/metrics"}},
+				HTTP:       web.HTTP{Request: web.Request{URL: "http://127.0.0.1:8080/metrics"}},
 				TopicFiler: matcher.SimpleExpr{Includes: []string{"+"}}},
 			wantFail: true,
 		},
 		"empty URL": {
-			config:   Config{HTTP: web.HTTP{Request: web.Request{UserURL: ""}}},
+			config:   Config{HTTP: web.HTTP{Request: web.Request{URL: ""}}},
 			wantFail: true,
 		},
 		"nonexistent TLS CA": {
 			config: Config{HTTP: web.HTTP{
-				Request: web.Request{UserURL: "http://127.0.0.1:8080/metric"},
-				Client:  web.Client{ClientTLSConfig: web.ClientTLSConfig{TLSCA: "testdata/tls"}}}},
+				Request: web.Request{URL: "http://127.0.0.1:8080/metric"},
+				Client:  web.Client{TLSConfig: tlscfg.TLSConfig{TLSCA: "testdata/tls"}}}},
 			wantFail: true,
 		},
 	}
@@ -221,7 +222,7 @@ func prepareClientServerStdV250Namespaces(t *testing.T) (*Pulsar, *httptest.Serv
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -235,7 +236,7 @@ func prepareClientServerStdV250Topics(t *testing.T) (*Pulsar, *httptest.Server) 
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -263,7 +264,7 @@ func prepareClientServersDynamicStdV250Topics(t *testing.T) (*Pulsar, *httptest.
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -277,7 +278,7 @@ func prepareClientServerNonPulsar(t *testing.T) (*Pulsar, *httptest.Server) {
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -291,7 +292,7 @@ func prepareClientServerInvalidData(t *testing.T) (*Pulsar, *httptest.Server) {
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -305,7 +306,7 @@ func prepareClientServer404(t *testing.T) (*Pulsar, *httptest.Server) {
 		}))
 
 	pulsar := New()
-	pulsar.UserURL = srv.URL
+	pulsar.URL = srv.URL
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv
@@ -316,7 +317,7 @@ func prepareClientServerConnectionRefused(t *testing.T) (*Pulsar, *httptest.Serv
 	srv := httptest.NewServer(nil)
 
 	pulsar := New()
-	pulsar.UserURL = "http://127.0.0.1:38001/metrics"
+	pulsar.URL = "http://127.0.0.1:38001/metrics"
 	require.True(t, pulsar.Init())
 
 	return pulsar, srv

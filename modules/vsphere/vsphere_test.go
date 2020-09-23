@@ -38,7 +38,7 @@ func TestVSphere_Init(t *testing.T) {
 func TestVSphere_Init_ReturnsFalseIfURLNotSet(t *testing.T) {
 	vSphere, _, teardown := prepareVSphereSim(t)
 	defer teardown()
-	vSphere.UserURL = ""
+	vSphere.URL = ""
 
 	assert.False(t, vSphere.Init())
 }
@@ -62,7 +62,7 @@ func TestVSphere_Init_ReturnsFalseIfPasswordNotSet(t *testing.T) {
 func TestVSphere_Init_ReturnsFalseIfClientWrongTLSCA(t *testing.T) {
 	vSphere, _, teardown := prepareVSphereSim(t)
 	defer teardown()
-	vSphere.ClientTLSConfig.TLSCA = "testdata/tls"
+	vSphere.Client.TLSConfig.TLSCA = "testdata/tls"
 
 	assert.False(t, vSphere.Init())
 }
@@ -70,7 +70,7 @@ func TestVSphere_Init_ReturnsFalseIfClientWrongTLSCA(t *testing.T) {
 func TestVSphere_Init_ReturnsFalseIfConnectionRefused(t *testing.T) {
 	vSphere, _, teardown := prepareVSphereSim(t)
 	defer teardown()
-	vSphere.UserURL = "http://127.0.0.1:32001"
+	vSphere.URL = "http://127.0.0.1:32001"
 
 	assert.False(t, vSphere.Init())
 }
@@ -443,8 +443,8 @@ func prepareVSphereSim(t *testing.T) (vSphere *VSphere, model *simulator.Model, 
 
 	vSphere.Username = "administrator"
 	vSphere.Password = "password"
-	vSphere.UserURL = srv.URL.String()
-	vSphere.InsecureSkipVerify = true
+	vSphere.URL = srv.URL.String()
+	vSphere.TLSConfig.InsecureSkipVerify = true
 
 	return vSphere, model, teardown
 }
