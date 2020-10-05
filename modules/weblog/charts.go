@@ -80,11 +80,11 @@ var (
 	}
 	// netdata specific grouping
 	reqTypes = Chart{
-		ID:       "requests_by_type",
+		ID:       "response_statuses",
 		Title:    "Requests By Type",
 		Units:    "requests/s",
 		Fam:      "requests",
-		Ctx:      "web_log.type_requests",
+		Ctx:      "web_log.response_statuses",
 		Type:     module.Stacked,
 		Priority: prioReqType,
 		Dims: Dims{
@@ -190,11 +190,11 @@ var (
 // Timings
 var (
 	reqProcTime = Chart{
-		ID:       "request_processing_time",
+		ID:       "response_time",
 		Title:    "Request Processing Time",
 		Units:    "milliseconds",
 		Fam:      "timings",
-		Ctx:      "web_log.request_processing_time",
+		Ctx:      "web_log.response_time",
 		Priority: prioReqProcTime,
 		Dims: Dims{
 			{ID: "req_proc_time_min", Name: "min", Div: 1000},
